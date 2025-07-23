@@ -151,7 +151,7 @@ export default function IndexPage() {
             Six layers of protection for every aspect of your digital identity
           </p>
         </div>
-
+ <Link to="/encrypt"> 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <Card 
@@ -195,7 +195,7 @@ export default function IndexPage() {
               </CardFooter>
             </Card>
           ))}
-        </div>
+        </div></Link>
       </section>
 
 {/* HOW IT WORKS - CIPHERCORE MODEL X */}
@@ -299,7 +299,7 @@ export default function IndexPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button color="secondary" size="lg" radius="full" variant="shadow" className="shadow-lg">
-              Upgade to premium
+                <Link to="/upgrade">Upgade to premium</Link>
             </Button>
             
           </div>

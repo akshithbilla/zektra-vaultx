@@ -706,14 +706,7 @@ const EncryptPage = () => {
                       </div>
                     )}
 
-                    <Input
-                      label="Item Name"
-                      placeholder="Descriptive name for your item"
-                      value={itemName}
-                      onChange={(e) => setItemName(e.target.value)}
-                      required
-                      description="This will be visible in your vault listing"
-                    />
+                  
 
                     <Tabs 
                       selectedKey={activeTab}
@@ -793,6 +786,14 @@ const EncryptPage = () => {
                         </div>
                       </Tab>
                     </Tabs>
+                       <Input
+                      label="Item Name"
+                      placeholder="Descriptive name for your item"
+                      value={itemName}
+                      onChange={(e) => setItemName(e.target.value)}
+                      required
+                      description="This will be visible in your vault listing"
+                    />
 
                     <Input
                       label="Tags (optional)"
@@ -907,9 +908,11 @@ const EncryptPage = () => {
                 </p>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={onClose}>
-                  Continue
-                </Button>
+               <Link to="/myvault">
+  <Button color="primary" onClick={onClose}>
+    View in Myvault
+  </Button>
+</Link>
               </ModalFooter>
             </>
           )}

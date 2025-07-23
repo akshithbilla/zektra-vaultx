@@ -171,27 +171,27 @@ export default function MyVaultPage() {
     item?.name?.toLowerCase()?.includes(searchQuery.toLowerCase()) || []
   );
 
-  const handlePasswordSubmit = async () => {
-    if (!password) {
-      setPasswordError("Password is required");
-      return;
-    }
+const handlePasswordSubmit = async () => {
+  if (!password) {
+    setPasswordError("Password is required");
+    return;
+  }
 
-    try {
-      if (currentAction === 'initial') {
-        await fetchVaultData(password);
-      } else if (currentAction === 'preview') {
-        await handlePreviewFile(previewFile, password);
-      } else if (currentAction === 'download') {
-        await handleDownloadFile(previewFile._id, previewFile.name, password);
-      }
-      setPassword("");
-      setPasswordError(null);
-    } catch (error) {
-      setPasswordError("Incorrect password. Please try again.");
-      console.error("Decryption error:", error);
+  try {
+    if (currentAction === 'initial') {
+      await fetchVaultData(password);
+    } else if (currentAction === 'preview') {
+      await handlePreviewFile(previewFile, password);
+    } else if (currentAction === 'download') {
+      await handleDownloadFile(previewFile.id, previewFile.name, password); // Use previewFile.id
     }
-  };
+    setPassword("");
+    setPasswordError(null);
+  } catch (error) {
+    setPasswordError("Incorrect password. Please try again.");
+    console.error("Decryption error:", error);
+  }
+};
 
   const handleRepairVault = async () => {
     try {
@@ -214,52 +214,62 @@ export default function MyVaultPage() {
     }
   };
 
-  const promptForPassword = (action, file) => {
-    console.log("Selected file for action:", action, file);
-    if (!file || !file.id) {
-      setPasswordError("Invalid file selected.");
-      return;
-    }
-    setCurrentAction(action);
-    setPreviewFile(file);
-    setIsPasswordModalOpen(true);
-    setPassword("");
-    setPasswordError(null);
-  };
+const promptForPassword = (action, file) => {
+  console.log("Selected file for action:", action, file);
+  if (!file || !file.id) {
+    setPasswordError("Invalid file selected.");
+    return;
+  }
+  setCurrentAction(action);
+  setPreviewFile(file);
+  setIsPasswordModalOpen(true);
+  setPassword("");
+  setPasswordError(null);
+};
 
-  const handleDownloadFile = async (fileId, fileName, decryptionPassword) => {
-    if (!fileId) {
-      throw new Error("Invalid file ID");
-    }
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/encryption/decrypt-download/${fileId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          params: {
-            decryptionPassword
-          },
-          responseType: 'blob'
-        }
-      );
+ const handleDownloadFile = async (fileId, fileName, decryptionPassword) => {
+  if (!fileId) {
+    throw new Error("Invalid file ID");
+  }
+  try {
+    const token = localStorage.getItem("token");
+    console.log("Downloading file with ID:", fileId);
+    const response = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/api/encryption/decrypt-download/${fileId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: {
+          decryptionPassword
+        },
+        responseType: 'blob'
+      }
+    );
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      setIsPasswordModalOpen(false);
-    } catch (err) {
-      console.error("Download error:", err.response?.data || err);
-      throw new Error(err.response?.data?.message || "Failed to decrypt file");
+    // Log response headers for debugging
+    console.log("Response headers:", response.headers);
+
+    const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setIsPasswordModalOpen(false);
+  } catch (err) {
+    console.error("Download error:", err);
+    if (err.response?.headers['content-type']?.includes('application/json')) {
+      const text = await err.response.data.text();
+      const json = JSON.parse(text);
+      throw new Error(json.message || "Failed to decrypt file");
     }
-  };
+    throw new Error(err.response?.data?.message || "Failed to decrypt file");
+  }
+};
 
   const handlePreviewFile = async (file, decryptionPassword) => {
     if (!file || !file.id) {
@@ -307,37 +317,37 @@ export default function MyVaultPage() {
     }
   };
 
-  const handleDeleteFile = async (fileId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/api/encryption/files/${fileId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+const handleDeleteFile = async (fileId) => {
+  if (!fileId) {
+    console.error("Invalid file ID provided for deletion");
+    alert("Invalid file ID");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+    await axios.delete(
+      `${import.meta.env.VITE_BACKEND_URL}/api/encryption/files/${fileId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
-
-      setVaultData(prev => ({
-        ...prev,
-        [activeCategory]: prev[activeCategory].filter(file => file.id !== fileId)
-      }));
-
-      if (previewFile?.id === fileId) {
-        closePreview();
       }
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert(err.response?.data?.message || "Failed to delete file");
-    }
-  };
+    );
 
-  const closePreview = () => {
-    setPreviewFile(null);
-    setPreviewContent(null);
-    setIsPreviewLoading(false);
-  };
+    setVaultData(prev => ({
+      ...prev,
+      [activeCategory]: prev[activeCategory].filter(file => file.id !== fileId)
+    }));
+
+    if (previewFile?.id === fileId) {
+      closePreview();
+    }
+  } catch (err) {
+    console.error("Delete error:", err);
+    alert(err.response?.data?.message || "Failed to delete file");
+  }
+};
 
 const handleResetDecryptionPassword = async () => {
   if (!accountPassword || !newDecryptionPassword) {
@@ -397,8 +407,8 @@ const handleResetDecryptionPassword = async () => {
                 Try Again
               </Button>
               {!vaultInitialized && (
-                <Button className="mt-4" onClick={() => navigate('/initialize-vault')}>
-                  Initialize Vault
+                <Button className="mt-4" onClick={() => navigate('/Encrypt')}>
+                  Initialize Vault in Encrpt Page
                 </Button>
               )}
             </CardBody>
@@ -537,29 +547,31 @@ const handleResetDecryptionPassword = async () => {
                           {item.contentType || 'Encrypted file'}
                         </span>
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="light"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              promptForPassword('download', item);
-                            }}
-                          >
-                            Download
-                          </Button>
-                          <Button
-                            size="sm"
-                            color="danger"
-                            variant="light"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm(`Are you sure you want to delete ${item.name}?`)) {
-                                handleDeleteFile(item._id);
-                              }
-                            }}
-                          >
-                            Delete
-                          </Button>
+<Button
+  size="sm"
+  variant="light"
+  onPress={() => {
+    console.log("Preview file for download:", previewFile);
+    promptForPassword('download', previewFile);
+  }}
+  isDisabled={!previewFile}
+>
+  Download
+</Button>
+ 
+                       <Button
+  size="sm"
+  color="danger"
+  variant="light"
+  onClick={(e) => {
+    e.stopPropagation();
+    if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+      handleDeleteFile(item.id); // Use item.id
+    }
+  }}
+>
+  Delete
+</Button>
                         </div>
                       </CardFooter>
                     </Card>
@@ -694,28 +706,31 @@ const handleResetDecryptionPassword = async () => {
               />
 
               <ModalFooter>
-                <Button
-                  size="sm"
-                  variant="light"
-                  onPress={() => promptForPassword('download', previewFile)}
-                  isDisabled={!previewFile}
-                >
-                  Download
-                </Button>
-                <Button
-                  size="sm"
-                  color="danger"
-                  variant="light"
-                  onPress={() => {
-                    if (confirm(`Are you sure you want to delete ${previewFile?.name}?`)) {
-                      handleDeleteFile(previewFile?._id);
-                      onClose();
-                    }
-                  }}
-                  isDisabled={!previewFile}
-                >
-                  Delete
-                </Button>
+<Button
+  size="sm"
+  variant="light"
+  onPress={() => {
+    console.log("Preview file for download:", previewFile);
+    promptForPassword('download', previewFile);
+  }}
+  isDisabled={!previewFile}
+>
+  Download
+</Button>
+            <Button
+  size="sm"
+  color="danger"
+  variant="light"
+  onPress={() => {
+    if (confirm(`Are you sure you want to delete ${previewFile?.name}?`)) {
+      handleDeleteFile(previewFile?.id); // Use previewFile.id
+      onClose();
+    }
+  }}
+  isDisabled={!previewFile}
+>
+  Delete
+</Button>
               </ModalFooter>
             </>
           )}

@@ -647,62 +647,62 @@ app.get('/test-file-preview', async (req, res) => {
     });
   }
 });
-// Download file endpoint
-app.get('/files/download/:id', authenticateJWT, async (req, res) => {
-  try {
-    const file = await File.findOne({ 
-      _id: req.params.id,
-      userId: req.user.id 
-    });
+// // Download file endpoint
+// app.get('/files/download/:id', authenticateJWT, async (req, res) => {
+//   try {
+//     const file = await File.findOne({ 
+//       _id: req.params.id,
+//       userId: req.user.id 
+//     });
     
-    if (!file) {
-      return res.status(404).json({ success: false, message: 'File not found' });
-    }
+//     if (!file) {
+//       return res.status(404).json({ success: false, message: 'File not found' });
+//     }
 
-    const command = new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: file.s3Key
-    });
+//     const command = new GetObjectCommand({
+//       Bucket: process.env.AWS_BUCKET_NAME,
+//       Key: file.s3Key
+//     });
     
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-    res.redirect(url);
+//     const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+//     res.redirect(url);
     
-  } catch (error) {
-    console.error('Download error:', error);
-    res.status(500).json({ success: false, message: 'Failed to download file' });
-  }
-});
+//   } catch (error) {
+//     console.error('Download error:', error);
+//     res.status(500).json({ success: false, message: 'Failed to download file' });
+//   }
+// });
 
 // ... other routes ...
 
 // DELETE by MongoDB file ID (the only one you need!)
-app.delete('/files/:id', authenticateJWT, async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: 'Invalid file id' });
-    }
-    const file = await File.findOne({ _id: req.params.id, userId: req.user.id });
-    if (!file) {
-      return res.status(404).json({ success: false, message: 'File not found' });
-    }
-    let s3DeleteSuccess = true;
-    try {
-      await deleteFileFromS3(file.s3Key);
-    } catch (s3err) {
-      s3DeleteSuccess = false;
-      console.error('S3 delete error:', s3err);
-    }
-    await File.deleteOne({ _id: req.params.id });
-    res.json({
-      success: true,
-      message: s3DeleteSuccess
-        ? 'File deleted successfully'
-        : 'File deleted from DB, but failed to delete from S3 (see server logs)'
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to delete file', error: error.message });
-  }
-});
+// app.delete('/files/:id', authenticateJWT, async (req, res) => {
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//       return res.status(400).json({ success: false, message: 'Invalid file id' });
+//     }
+//     const file = await File.findOne({ _id: req.params.id, userId: req.user.id });
+//     if (!file) {
+//       return res.status(404).json({ success: false, message: 'File not found' });
+//     }
+//     let s3DeleteSuccess = true;
+//     try {
+//       await deleteFileFromS3(file.s3Key);
+//     } catch (s3err) {
+//       s3DeleteSuccess = false;
+//       console.error('S3 delete error:', s3err);
+//     }
+//     await File.deleteOne({ _id: req.params.id });
+//     res.json({
+//       success: true,
+//       message: s3DeleteSuccess
+//         ? 'File deleted successfully'
+//         : 'File deleted from DB, but failed to delete from S3 (see server logs)'
+//     });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: 'Failed to delete file', error: error.message });
+//   }
+// });
 
 // REMOVE THIS S3-key-only endpoint!
 /*

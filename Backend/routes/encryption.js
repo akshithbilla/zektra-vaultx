@@ -5,7 +5,8 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { s3Client } from '../config/s3Client.js';
-import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+
 import { User } from '../index.js';
 import { File } from '../models/File.js';
 import {
@@ -15,7 +16,7 @@ import {
   deriveKeyArgon2,
   toBufferIfNecessary
 } from '../utils/cryptoUtils.js';
-
+import { isValidObjectId } from 'mongoose'; // Ensure this is imported
 dotenv.config();
 const router = express.Router();
 const upload = multer({
@@ -340,12 +341,15 @@ router.get('/vault-items', authenticateJWT, async (req, res) => {
 });
 
 // 🔓 Download Decrypted File
-// 🔓 Download Decrypted File - Updated for metadata decryption
 router.get('/decrypt-download/:id', authenticateJWT, async (req, res) => {
   const { decryptionPassword } = req.query;
   if (!decryptionPassword) return res.status(400).json({ message: 'Password required' });
 
   try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid file ID' });
+    }
+
     const user = await User.findById(req.user.id);
     const file = await File.findOne({ _id: req.params.id, userId: req.user.id });
     if (!file) return res.status(404).json({ message: 'File not found' });
@@ -358,11 +362,14 @@ router.get('/decrypt-download/:id', authenticateJWT, async (req, res) => {
     const derivedKey = await deriveKeyArgon2(decryptionPassword, salt);
     const vaultKey = decryptData(encryptedVaultKey, derivedKey, iv, tag);
 
-    // Decrypt metadata to get original filename and content type
+    // Decrypt metadata
     const metadataIv = toBufferIfNecessary(file.encryptedMetadata.iv);
     const metadataTag = toBufferIfNecessary(file.encryptedMetadata.tag);
     const encryptedMetadata = toBufferIfNecessary(file.encryptedMetadata.data);
     const decryptedMetadata = JSON.parse(decryptData(encryptedMetadata, vaultKey, metadataIv, metadataTag));
+
+    // Log metadata for debugging
+    console.log('Decrypted metadata:', decryptedMetadata);
 
     // Decrypt file content
     const fileIv = toBufferIfNecessary(file.encryption.fileIv);
@@ -370,19 +377,31 @@ router.get('/decrypt-download/:id', authenticateJWT, async (req, res) => {
     const encryptedFileKey = toBufferIfNecessary(file.encryption.fileKey);
     const fileKey = decryptData(encryptedFileKey, vaultKey, fileIv, keyTag);
 
-    const { Body } = await s3Client.send(new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: file.s3Key,
-    }));
-
-    const chunks = [];
-    for await (const chunk of Body) chunks.push(chunk);
-    const encryptedBuffer = Buffer.concat(chunks);
+    let encryptedBuffer;
+    try {
+      const { Body } = await s3Client.send(new GetObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: file.s3Key,
+      }));
+      const chunks = [];
+      for await (const chunk of Body) chunks.push(chunk);
+      encryptedBuffer = Buffer.concat(chunks);
+    } catch (s3Error) {
+      console.error('❌ S3 get object error:', s3Error);
+      return res.status(500).json({ message: 'Failed to retrieve file from S3', error: s3Error.message });
+    }
 
     const fileTag = toBufferIfNecessary(file.encryption.fileTag);
     const decryptedFile = decryptData(encryptedBuffer, fileKey, fileIv, fileTag);
 
-    res.setHeader('Content-Type', decryptedMetadata.contentType);
+    // Ensure decryptedFile is a Buffer
+    if (!(decryptedFile instanceof Buffer)) {
+      console.error('Decrypted file is not a Buffer:', typeof decryptedFile);
+      return res.status(500).json({ message: 'Decryption resulted in invalid data format' });
+    }
+
+    // Set headers
+    res.setHeader('Content-Type', decryptedMetadata.contentType || 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename="${decryptedMetadata.name}"`);
     res.send(decryptedFile);
   } catch (err) {
@@ -393,7 +412,7 @@ router.get('/decrypt-download/:id', authenticateJWT, async (req, res) => {
         code: 'WRONG_PASSWORD'
       });
     }
-    res.status(500).json({ message: 'Failed to decrypt file' });
+    res.status(500).json({ message: 'Failed to decrypt file', error: err.message });
   }
 });
 
@@ -434,24 +453,46 @@ router.get('/files', authenticateJWT, async (req, res) => {
 });
 
 // 🗑️ Delete File
+ 
+
 router.delete('/files/:id', authenticateJWT, async (req, res) => {
   try {
-    const file = await File.findOne({ _id: req.params.id, userId: req.user.id });
+    const fileId = req.params.id;
+    if (!fileId || !isValidObjectId(fileId)) {
+      return res.status(400).json({ message: 'Invalid file ID' });
+    }
+
+    const file = await File.findOne({ _id: fileId, userId: req.user.id });
     if (!file) return res.status(404).json({ message: 'File not found' });
 
+    // Log S3 key for debugging
+    console.log('Attempting to delete S3 object with key:', file.s3Key);
+
     // Delete from S3
-    await s3Client.send(new DeleteObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: file.s3Key,
-    }));
+    try {
+      await s3Client.send(new DeleteObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: file.s3Key,
+      }));
+      console.log('S3 object deleted successfully:', file.s3Key);
+    } catch (s3Error) {
+      console.error('❌ S3 delete error:', s3Error);
+      return res.status(500).json({ message: 'Failed to delete file from S3', error: s3Error.message });
+    }
 
     // Delete from database
-    await File.deleteOne({ _id: req.params.id });
+    try {
+      await File.deleteOne({ _id: fileId });
+      console.log('File deleted from database:', fileId);
+    } catch (dbError) {
+      console.error('❌ Database delete error:', dbError);
+      return res.status(500).json({ message: 'Failed to delete file from database', error: dbError.message });
+    }
 
     res.json({ message: 'File deleted successfully' });
   } catch (err) {
     console.error('❌ Delete file error:', err);
-    res.status(500).json({ message: 'Failed to delete file' });
+    res.status(500).json({ message: 'Failed to delete file', error: err.message });
   }
 });
 

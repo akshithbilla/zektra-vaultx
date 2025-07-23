@@ -35,7 +35,7 @@ import recaptchaRoute from './routes/recaptcha.js';
 // Middleware ---------------------------------------------------------------------
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+ origin: process.env.FRONTEND_URL, 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-decryption-password'],
   credentials: true

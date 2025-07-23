@@ -907,11 +907,9 @@ const EncryptPage = () => {
                 </p>
               </ModalBody>
               <ModalFooter>
-               <Link to="/myvault">
-  <Button color="primary" onClick={onClose}>
-    View in Myvault
-  </Button>
-</Link>
+                <Button color="primary" onPress={onClose}>
+                  Continue
+                </Button>
               </ModalFooter>
             </>
           )}

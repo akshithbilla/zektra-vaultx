@@ -71,7 +71,7 @@ export const MainNavbar = ({ user, setUser }: MainNavbarProps) => {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <img src={l} alt="VaultX Logo" style={{ width: "24px", height: "24px" }} />
-              <p className="font-bold text-lg">Zektra VaultX</p>
+              <p className="font-bold text-lg">zektra.space</p>
             </div>
             <button onClick={toggleSidebar} className="p-2 text-default-600 hover:text-default-900">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
@@ -161,7 +161,7 @@ export const MainNavbar = ({ user, setUser }: MainNavbarProps) => {
       className="w-10 h-10 object-contain" 
       style={{ minWidth: "32px" }}
     />
-    <p className="font-bold text-inherit">Zektra VaultX</p>
+    <p className="font-bold text-inherit">zektra.space</p>
   </Link>
 </NavbarBrand>
           <NavbarItem className="hidden md:flex">

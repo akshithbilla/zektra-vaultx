@@ -397,8 +397,8 @@ const handleResetDecryptionPassword = async () => {
                 Try Again
               </Button>
               {!vaultInitialized && (
-                <Button className="mt-4" onClick={() => navigate('/Encrypt')}>
-                  Initialize Vault in Encrpt Page
+                <Button className="mt-4" onClick={() => navigate('/initialize-vault')}>
+                  Initialize Vault
                 </Button>
               )}
             </CardBody>

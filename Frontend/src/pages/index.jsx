@@ -21,7 +21,7 @@ import { Link } from 'react-router-dom';
 export default function IndexPage() {
     const roadmap = [
         {
-      name:  "Zektra VaultX (Current)",
+      name:  "CipherCore Model X (Current)",
       description: "First-grade production launch, per-file isolation, zero-knowledge, enterprise-grade cryptography.",
       launch: "Now",
     },

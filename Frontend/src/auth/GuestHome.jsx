@@ -198,7 +198,7 @@ export default function Guest() {
 // Roadmap / Upcoming Models
   const roadmap = [
         {
-      name:  "Zektra VaultX (Current)",
+      name:  "CipherCore Model X (Current)",
       description: "First-grade production launch, per-file isolation, zero-knowledge, enterprise-grade cryptography.",
       launch: "Now",
     },
@@ -312,7 +312,8 @@ export default function Guest() {
                 Login
               </Button>
             </Link>
-          </div> <br />
+          </div>
+          <br /> 
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Chip color="success" variant="dot">SOC 2 Compliant</Chip>
             <Chip color="warning" variant="dot">GDPR Ready</Chip>
@@ -516,17 +517,15 @@ export default function Guest() {
           ))}
         </div>
       </section>
-
 {/* PAYMENT PLANS SECTION */}
-<section className="py-16 px-4 max-w-5xl mx-auto w-full">
+<section className="py-16 px-4 max-w-3xl mx-auto w-full">
   <div className="text-center mb-10">
     <h2 className="text-3xl font-bold dark:text-white mb-2">Choose Your Plan</h2>
     <p className="text-default-500 max-w-xl mx-auto">
       Start with full cryptographic protection for free, or unlock next-level power and control with CipherCore Model X Premium.
     </p>
   </div>
-  <div className="grid gap-8 grid-cols-1 md:grid-cols-3">
-    
+  <div className="grid gap-8 grid-cols-1 md:grid-cols-2">
     {/* FREE PLAN */}
     <Card className="h-full border border-default-200 dark:border-default-800 bg-white/95 dark:bg-default-900">
       <CardHeader className="flex flex-col items-center mb-2">
@@ -554,8 +553,8 @@ export default function Guest() {
         </Button>
       </CardFooter>
     </Card>
-    
-    {/* PREMIUM PLAN - MONTHLY */}
+
+    {/* PREMIUM PLAN */}
     <Card className="h-full border-2 border-violet-500 dark:border-violet-500 bg-violet-50/70 dark:bg-violet-950/70 shadow-lg ring-2 ring-violet-300">
       <CardHeader className="flex flex-col items-center mb-2">
         <span className="text-2xl font-bold text-violet-900 dark:text-violet-200">Premium</span>
@@ -582,51 +581,17 @@ export default function Guest() {
           variant="solid"
           className="w-full font-semibold"
         >
-          Upgrade Monthly
+          Upgrade to Premium
         </Button>
       </CardFooter>
     </Card>
-
-    {/* PREMIUM PLAN - YEARLY */}
-    <Card className="h-full border-2 border-violet-500 dark:border-violet-500 bg-violet-50/70 dark:bg-violet-950/70 shadow-lg ring-2 ring-violet-300">
-      <CardHeader className="flex flex-col items-center mb-2">
-        <span className="text-2xl font-bold text-violet-900 dark:text-violet-200">Premium</span>
-        <span className="mt-2 text-4xl font-extrabold text-violet-700 dark:text-violet-400">₹2,999</span>
-        <span className="mt-1 text-sm text-gray-500">per year</span>
-        <span className="inline-block mt-3 px-2 py-1 bg-violet-100 text-violet-800 text-xs font-semibold rounded-full tracking-wide">
-          CipherCore Model X
-        </span>
-      </CardHeader>
-      <CardBody>
-        <ul className="mb-4 text-default-700 dark:text-default-300 space-y-2 text-left max-w-xs mx-auto">
-          <li>· All Free plan features <span className="ml-1 text-violet-700">+</span></li>
-          <li>· Payment Wallet & Digital ID modules</li>
-          <li>· Up to 5 files across all modules</li>
-          <li>· Priority support and upgrades</li>
-          <li>· Advanced vault control</li>
-        </ul>
-      </CardBody>
-      <CardFooter>
-        <Button
-          size="md"
-          radius="full"
-          color="primary"
-          variant="solid"
-          className="w-full font-semibold"
-        >
-          Upgrade Yearly
-        </Button>
-      </CardFooter>
-    </Card>
-    
-  </div> <br></br>
+  </div>
   <div className="mt-10 mb-2 text-center">
     <span className="inline-block bg-violet-50 dark:bg-violet-900 px-4 py-2 rounded-full font-medium text-violet-700 dark:text-violet-300">
       Transparent pricing. No hidden fees. Cancel anytime.
     </span>
   </div>
 </section>
-
 
       {/* FINAL CTA */}
       <section className="py-16 bg-gradient-to-r from-violet-700 to-blue-700 text-white">

@@ -296,10 +296,10 @@ export default function Guest() {
           </h1>
           <h2 className={subtitle({ class: "mt-4 max-w-2xl mx-auto" })}>
             The next-generation cryptographic security platform.<br />
-            <span className="text-violet-700 font-bold">AES-256-GCM</span>{", "}
-            <span className="text-blue-700 font-bold">Argon2id</span>{", "}
-            and <span className="text-green-700 font-bold">zero-knowledge isolation</span> with
-            <span className="text-pink-600 font-bold mx-1">per-file encryption</span>.
+            <span className="text-700 font-bold">AES-256-GCM</span>{", "}
+            <span className="text-700 font-bold">Argon2id</span>{", "}
+            and <span className="text-700 font-bold">zero-knowledge isolation</span> with
+            <span className="text-600 font-bold mx-1">per-file encryption</span>.
           </h2> <br />
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/signup">

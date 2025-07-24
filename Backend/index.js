@@ -177,39 +177,62 @@ app.post("/register", async (req, res) => {
     });
 
     const verifyLink = `${process.env.BACKEND_URL}/verify-email/${verificationToken}`;
-    await transporter.sendMail({
-      from: '"MyPortfolify" <myportfolify@gmail.com>',
-      to: username,
-      subject: "Complete Your MyPortfolify Registration",
-      text: `Hi ${username.split('@')[0]}!\n\nWelcome to MyPortfolify! To get started, please verify your email address by clicking the link below:\n\n${verifyLink}\n\nThis link will expire in 24 hours. If you didn't request this, please ignore this email.\n\nThanks,\nThe MyPortfolify Team`,
-      html: `
-        <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-          <div style="background-color: #f8f9fa; padding: 30px; border-radius: 8px;">
-            <div style="text-align: center; margin-bottom: 25px;">
-              <h1 style="color: #2c3e50; font-size: 24px; margin: 0;">MyPortfolify</h1>
-            </div>
-            
-            <div style="background-color: white; padding: 30px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-              <h2 style="color: #2c3e50; font-size: 20px; margin-top: 0;">Welcome to MyPortfolify!</h2>
-              <p style="line-height: 1.6;">Hi ${username.split('@')[0]},</p>
-              <p style="line-height: 1.6;">Thank you for creating an account. Please verify your email address to complete your registration and start building your portfolio.</p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${verifyLink}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 4px; font-weight: 500; font-size: 16px;">Verify Email Address</a>
-              </div>
-              
-              <p style="line-height: 1.6; font-size: 14px; color: #666;">This verification link will expire in 24 hours. If you didn't create a MyPortfolify account, you can safely ignore this email.</p>
-            </div>
-            
-            <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #777;">
-              <p>© ${new Date().getFullYear()} MyPortfolify. All rights reserved.</p>
-              <p style="margin-bottom: 0;">If you're having trouble with the button above, copy and paste this URL into your browser:</p>
-              <p style="word-break: break-all;">${verifyLink}</p>
-            </div>
-          </div>
+await transporter.sendMail({
+  from: '"Zektra VaultX" <zektravaultx@gmail.com>', // Update sender 
+  to: username,
+  subject: "Verify Your Zektra VaultX Account",
+  text: `Hi ${username.split('@')[0]}! 
+
+Welcome to Zektra VaultX — your enterprise-grade cryptographic vault for secure digital asset protection.
+
+To activate your vault and start benefiting from high-end encryption, please verify your email address by clicking the link below:
+
+${verifyLink}
+
+This link will expire in 24 hours. If you didn’t request an account, simply ignore this email.
+
+Stay secure!
+The Zektra VaultX Team`,
+  html: `
+    <!-- Outer Container -->
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #15132d;">
+      <div style="background-color: #fafbff; padding: 32px; border-radius: 10px;">
+        <!-- Logo & Title -->
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://i.imgur.com/vD1l0DR.png" alt="Zektra VaultX Logo" width="50" style="display: block; margin: 0 auto 8px;" />
+          <h1 style="color: #7c3aed; margin: 0; font-size: 26px; font-weight: 700;">Zektra VaultX</h1>
+          <p style="color: #5b21b6; margin: 0; font-size: 15px;">Enterprise-Grade Crypto Vault</p>
         </div>
-      `,
-    });
+      
+        <!-- Card -->
+        <div style="background: #fff; padding: 28px; border-radius: 8px; box-shadow: 0 2px 10px rgba(124,58,237,0.06);">
+          <h2 style="margin-top: 0; color: #512da8; font-size: 20px;">Welcome to Zektra VaultX!</h2>
+          <p style="line-height: 1.7;">Hi <b>${username.split('@')[0]}</b>,</p>
+          <p style="line-height: 1.7;">
+            Thank you for registering. You're just one step away from protecting your digital assets with zero-knowledge encryption powered by AES-256-GCM and Argon2id.
+          </p>
+        
+          <!-- Button -->
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verifyLink}" style="display:inline-block; background: #7c3aed; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 4px; font-weight: 500; font-size: 16px; letter-spacing: 0.3px;">
+              Verify Email & Activate Vault
+            </a>
+          </div>
+        
+          <p style="font-size: 14px; color: #666;">This verification link is valid for 24 hours. If you didn’t create a Zektra VaultX account, you can safely ignore this email.</p>
+        </div>
+        
+        <!-- Footer -->
+        <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #8183a3;">
+          <p>© ${new Date().getFullYear()} Zektra VaultX. All rights reserved.</p>
+          <p style="margin: 0;">Problems with the button? Paste this link in your browser:</p>
+          <p style="word-break: break-all; color: #6d28d9;">${verifyLink}</p>
+        </div>
+      </div>
+    </div>
+  `,
+});
+
 
     res.status(200).json({ message: "Registered, verify email sent", user: newUser });
   } catch (err) {
@@ -292,52 +315,65 @@ app.post("/forgot-password", async (req, res) => {
     await user.save();
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-    await transporter.sendMail({
-      from: '"MyPortfolify Security" <security@myportfolify.com>',
-      to: email,
-      subject: "Password Reset Request for Your MyPortfolify Account",
-      text: `Hi there,\n\nWe received a request to reset your MyPortfolify password. Click the link below to proceed:\n\n${resetLink}\n\nThis link expires in 1 hour for security reasons.\n\nIf you didn't request this, please ignore this email or contact support.\n\n- The MyPortfolify Team`,
-      html: `
-        <div style="font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-          <div style="background-color: #f8fafc; padding: 30px; border-radius: 8px;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <h1 style="color: #2c3e50; margin: 0; font-size: 22px;">MyPortfolify</h1>
-              <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Portfolio Management</p>
-            </div>
+await transporter.sendMail({
+  from: '"Zektra VaultX Security" <security@zektravault.com>',
+  to: email,
+  subject: "Reset Your Zektra VaultX Account Password",
+  text: 
+`Hi,
 
-            <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-              <h2 style="color: #1e293b; font-size: 18px; margin-top: 0;">Password Reset Request</h2>
-              <p style="line-height: 1.6;">We received a request to reset the password for your account.</p>
-              
-              <div style="text-align: center; margin: 25px 0;">
-                <a href="${resetLink}" 
-                   style="display: inline-block; padding: 12px 24px; background-color: #6366f1; color: white; 
-                          text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 15px;
-                          transition: background-color 0.3s ease;"
-                   onMouseOver="this.style.backgroundColor='#4f46e5'" 
-                   onMouseOut="this.style.backgroundColor='#6366f1'">
-                  Reset Password
-                </a>
-              </div>
+A password reset was requested for your Zektra VaultX account.
 
-              <p style="font-size: 14px; color: #64748b; line-height: 1.5;">
-                <strong>Important:</strong> This link will expire in 1 hour for security reasons. 
-                If you didn't request a password reset, please secure your account by 
-                <a href="mailto:support@myportfolify.com" style="color: #6366f1;">contacting support</a>.
-              </p>
-            </div>
+If you made this request, click the link below to securely reset your password:
+${resetLink}
 
-            <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #94a3b8;">
-              <p>© ${new Date().getFullYear()} MyPortfolify. All rights reserved.</p>
-              <p style="margin: 5px 0;">For your security, do not share this email with anyone.</p>
-              <p>If the button doesn't work, copy this URL to your browser:<br>
-                <span style="word-break: break-all; color: #475569;">${resetLink}</span>
-              </p>
-            </div>
-          </div>
+This link will expire in 1 hour for your protection.
+
+If you did NOT request this change, please ignore this email or contact Zektra Security Support immediately.
+
+Stay Secure,
+The Zektra VaultX Team`,
+  html: `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #241e4e;">
+      <div style="background-color: #f6f6ff; padding: 32px; border-radius: 10px;">
+        <!-- Logo & Header -->
+        <div style="text-align: center; margin-bottom: 22px;">
+          <img src="https://i.imgur.com/vD1l0DR.png" alt="Zektra VaultX Logo" width="50" style="margin: 0 auto 10px;" />
+          <h1 style="color: #7c3aed; margin: 0; font-size: 23px; font-weight: 700;">Zektra VaultX</h1>
+          <p style="color: #5b21b6; font-size: 14px;">Enterprise Crypto Vault Security</p>
         </div>
-      `
-    });
+
+        <div style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(124,58,237,0.08);">
+          <h2 style="margin-top: 0; color: #512da8; font-size: 19px;">Password Reset Requested</h2>
+          <p style="line-height: 1.6;">
+            We received a request to reset the password for your Zektra VaultX account.<br>
+            If you did not request this, your account remains secure – no changes have been made.
+          </p>
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="${resetLink}"
+               style="display:inline-block; background-color:#7c3aed; color:#fff; text-decoration:none;
+                      padding:15px 28px; border-radius: 5px; font-weight: 600; font-size: 16px; letter-spacing:0.2px;"
+               target="_blank"
+            >Reset Password</a>
+          </div>
+          <p style="font-size: 14px; color: #6b7280; line-height: 1.5;">
+            <strong>Important:</strong> This reset link expires in <b>1 hour</b> for your security.<br>
+            If you believe your account is at risk, please 
+            <a href="mailto:support@zektravault.com" style="color: #7c3aed;">contact our Security Team</a>.
+          </p>
+        </div>
+
+        <div style="margin-top: 32px; text-align: center; font-size: 12px; color: #8586a8;">
+          <p>© ${new Date().getFullYear()} Zektra VaultX — Secure Your Digital World.</p>
+          <p>For your protection, never share this email or password reset link with anyone.</p>
+          <p>If the button above doesn't work, copy and paste this URL in your browser:</p>
+          <p style="word-break: break-all; color: #512da8;">${resetLink}</p>
+        </div>
+      </div>
+    </div>
+  `
+});
+
 
     res.status(200).json({ message: "Reset link sent" });
   } catch (err) {
@@ -387,35 +423,56 @@ app.post("/resend-verification", async (req, res) => {
     await user.save();
 
     const verifyLink = `${process.env.BACKEND_URL}/verify-email/${verificationToken}`;
-    await transporter.sendMail({
-      from: '"MyPortfolify" <myportfolify@gmail.com>',
-      to: email,
-      subject: "Resend Email Verification for MyPortfolify",
-      text: `Hi ${email.split('@')[0]}!\n\nYou requested a new verification email. Please verify your email address by clicking the link below:\n\n${verifyLink}\n\nIf you didn't request this, please ignore this email.\n\nThanks,\nThe MyPortfolify Team`,
-      html: `
-        <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-          <div style="background-color: #f8f9fa; padding: 30px; border-radius: 8px;">
-            <div style="text-align: center; margin-bottom: 25px;">
-              <h1 style="color: #2c3e50; font-size: 24px; margin: 0;">MyPortfolify</h1>
-            </div>
-            <div style="background-color: white; padding: 30px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-              <h2 style="color: #2c3e50; font-size: 20px; margin-top: 0;">Verify Your Email Address</h2>
-              <p style="line-height: 1.6;">Hi ${email.split('@')[0]},</p>
-              <p style="line-height: 1.6;">Please verify your email address to activate your account.</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${verifyLink}" style="display: inline-block; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; border-radius: 4px; font-weight: 500; font-size: 16px;">Verify Email Address</a>
-              </div>
-              <p style="line-height: 1.6; font-size: 14px; color: #666;">If you didn't create a MyPortfolify account, you can safely ignore this email.</p>
-            </div>
-            <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #777;">
-              <p>© ${new Date().getFullYear()} MyPortfolify. All rights reserved.</p>
-              <p style="margin-bottom: 0;">If you're having trouble with the button above, copy and paste this URL into your browser:</p>
-              <p style="word-break: break-all;">${verifyLink}</p>
-            </div>
-          </div>
+await transporter.sendMail({
+  from: '"Zektra VaultX" <no-reply@zektravault.com>',
+  to: email,
+  subject: "Resend: Email Verification for Zektra VaultX Account",
+  text: 
+`Hi ${email.split('@')[0]}!
+
+You requested a new verification email for your Zektra VaultX account. Please verify your email address by clicking the link below:
+
+${verifyLink}
+
+If you did not request this, you can safely ignore this email.
+
+Protect Your Data,  
+The Zektra VaultX Team`,
+  html: `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #241e4e;">
+      <div style="background-color: #fafbff; padding: 32px; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://i.imgur.com/vD1l0DR.png" alt="Zektra VaultX Logo" width="50" style="display: block; margin: 0 auto 8px;" />
+          <h1 style="color: #7c3aed; margin: 0; font-size: 25px; font-weight: 700;">Zektra VaultX</h1>
         </div>
-      `,
-    });
+        <div style="background-color: #fff; padding: 28px; border-radius: 8px; box-shadow: 0 2px 10px rgba(124,58,237,0.06);">
+          <h2 style="color: #512da8; font-size: 20px; margin-top: 0;">
+            Verify Your Email Address
+          </h2>
+          <p style="line-height: 1.7;">Hi <b>${email.split('@')[0]}</b>,</p>
+          <p style="line-height: 1.7;">
+            Please verify your email address to activate your Zektra VaultX secure cryptographic vault account and enable access to end-to-end encrypted storage.
+          </p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verifyLink}" 
+              style="display: inline-block; padding: 14px 28px; background-color: #7c3aed; color: white; text-decoration: none; border-radius: 4px; font-weight: 500; font-size: 16px;">
+              Verify Email & Activate Vault
+            </a>
+          </div>
+          <p style="line-height: 1.6; font-size: 14px; color: #666;">
+            If you didn't create a Zektra VaultX account, you can safely ignore this email.
+          </p>
+        </div>
+        <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #8183a3;">
+          <p>© ${new Date().getFullYear()} Zektra VaultX. All rights reserved.</p>
+          <p style="margin: 0;">If the button above doesn't work, copy and paste this URL in your browser:</p>
+          <p style="word-break: break-all; color: #6d28d9;">${verifyLink}</p>
+        </div>
+      </div>
+    </div>
+  `,
+});
+
 
     res.json({ message: "Verification email sent" });
   } catch (e) {

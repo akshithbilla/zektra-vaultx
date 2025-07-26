@@ -638,10 +638,10 @@ export default function Guest() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button color="secondary" size="lg" radius="full" variant="shadow" className="shadow-lg">
-              Start Free Trial
+              <Link to="/login">Start Free Trial</Link>  
             </Button>
             <Button color="default" size="lg" radius="full" variant="ghost" className="text-white border-white/20">
-              Request Demo
+              <Link to="/login">Request Demo</Link>  
             </Button>
           </div>
           <div className="mt-6 text-purple-200 text-xs">SOC 2 Type II • GDPR • HIPAA • No credit card required</div>

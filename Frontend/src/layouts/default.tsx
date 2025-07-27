@@ -17,7 +17,7 @@ export default function DefaultLayout({
         <Link
           isExternal
           className="flex items-center gap-1 text-current"
-          href="https://akshithbilla-portfolio.vercel.app/projects"
+          href="https://www.akshithbilla.com"
           title="heroui.com homepage"
         >
           <span className="text-default-600">© 2025 </span>
